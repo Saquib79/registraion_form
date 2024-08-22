@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background-color: #4a90e2;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .status {
+            color: green;
+            font-weight: bold;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 8px;
+        }
+        .close-btn {
+            background-color: #4a90e2;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Socket ID</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="userList">
+                <!-- User rows will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
+
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <h2>User Details</h2>
+            <p id="modalEmail"></p>
+            <p id="modalName"></p>
+            <p id="modalMobile"></p>
+            <p id="modalAddress"></p>
+            <p id="modalLoginId"></p>
+            <button class="close-btn" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Sample user data
+        const users = [
+            { email: "jhvfc@gmail.com", socketId: "GqGiAmQUcCsBEbiZAAAB", status: "Online", name: "csdcs ddc", mobile: "1234567890", address: "eef, rferwfe, ergrtg, rtgreg", loginId: "12345678a" }
+        ];
+
+        const userList = document.getElementById('userList');
+        const modal = document.getElementById('userModal');
+
+        // Populate user list
+        users.forEach(user => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${user.email}</td>
+                <td>${user.socketId}</td>
+                <td class="status">${user.status}</td>
+            `;
+            row.onclick = () => showUserDetails(user);
+            userList.appendChild(row);
+        });
+
+        function showUserDetails(user) {
+            document.getElementById('modalEmail').textContent = `Email: ${user.email}`;
+            document.getElementById('modalName').textContent = `Name: ${user.name}`;
+            document.getElementById('modalMobile').textContent = `Mobile No: ${user.mobile}`;
+            document.getElementById('modalAddress').textContent = `Address: ${user.address}`;
+            document.getElementById('modalLoginId').textContent = `Login ID: ${user.loginId}`;
+            modal.style.display = "block";
+        }
+
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
