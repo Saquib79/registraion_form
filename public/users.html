@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User List</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        /* Keep the existing styles */
+    </style>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -69,6 +73,7 @@
             margin: 20px auto 0;
         }
     </style>
+
 </head>
 <body>
     <div class="container">
@@ -99,31 +104,49 @@
     </div>
 
     <script>
-        // Sample user data
-        const users = [
-            { email: "jhvfc@gmail.com", socketId: "GqGiAmQUcCsBEbiZAAAB", status: "Online", name: "csdcs ddc", mobile: "1234567890", address: "eef, rferwfe, ergrtg, rtgreg", loginId: "12345678a" }
-        ];
-
+        const socket = io();
         const userList = document.getElementById('userList');
         const modal = document.getElementById('userModal');
 
-        // Populate user list
-        users.forEach(user => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${user.email}</td>
-                <td>${user.socketId}</td>
-                <td class="status">${user.status}</td>
-            `;
-            row.onclick = () => showUserDetails(user);
-            userList.appendChild(row);
+        // Simulating a user login (replace with actual login mechanism)
+        const userEmail = prompt("Enter your email to join the room:");
+        if (userEmail) {
+            socket.emit('join', { email: userEmail });
+        }
+
+        socket.on('userList', (users) => {
+            userList.innerHTML = '';
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.email}</td>
+                    <td>${user.socketId}</td>
+                    <td class="status">${user.status}</td>
+                `;
+                row.onclick = () => fetchUserDetails(user.email);
+                userList.appendChild(row);
+            });
         });
+
+        async function fetchUserDetails(email) {
+            try {
+                const response = await fetch(`/user/${email}`);
+                if (response.ok) {
+                    const user = await response.json();
+                    showUserDetails(user);
+                } else {
+                    console.error('Failed to fetch user details');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
 
         function showUserDetails(user) {
             document.getElementById('modalEmail').textContent = `Email: ${user.email}`;
-            document.getElementById('modalName').textContent = `Name: ${user.name}`;
+            document.getElementById('modalName').textContent = `Name: ${user.firstName} ${user.lastName}`;
             document.getElementById('modalMobile').textContent = `Mobile No: ${user.mobile}`;
-            document.getElementById('modalAddress').textContent = `Address: ${user.address}`;
+            document.getElementById('modalAddress').textContent = `Address: ${user.street}, ${user.city}, ${user.state}, ${user.country}`;
             document.getElementById('modalLoginId').textContent = `Login ID: ${user.loginId}`;
             modal.style.display = "block";
         }
@@ -132,7 +155,6 @@
             modal.style.display = "none";
         }
 
-        // Close modal when clicking outside of it
         window.onclick = function(event) {
             if (event.target == modal) {
                 modal.style.display = "none";

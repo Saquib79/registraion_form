@@ -51,12 +51,6 @@ app.get('/users', (req, res) => {
     });
 });
 
-app.get('/users', (req, res) => {
-    app.get('/users', (req, res) => {
-        res.sendFile(path.join(__dirname, 'public', 'users.html'));
-    });
-});
-
 app.post('/submit_registration', async (req, res) => {
     const newUser = new User({
         firstName: req.body.firstName,
@@ -99,15 +93,26 @@ const liveUsers = new Map();
 io.on('connection', (socket) => {
     console.log('New client connected');
 
-    socket.on('join', (userData) => {
-        socket.join('live users');
-        liveUsers.set(socket.id, { email: userData.email, name: userData.name });
-        io.to('live users').emit('userList', Array.from(liveUsers.values()));
+    socket.on('join', async (userData) => {
+        try {
+            const user = await User.findOne({ email: userData.email });
+            if (user) {
+                liveUsers.set(socket.id, {
+                    email: user.email,
+                    name: `${user.firstName} ${user.lastName}`,
+                    socketId: socket.id,
+                    status: 'Online'
+                });
+                io.emit('userList', Array.from(liveUsers.values()));
+            }
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
     });
 
     socket.on('disconnect', () => {
         liveUsers.delete(socket.id);
-        io.to('live users').emit('userList', Array.from(liveUsers.values()));
+        io.emit('userList', Array.from(liveUsers.values()));
     });
 });
 
